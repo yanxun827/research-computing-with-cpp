@@ -28,4 +28,14 @@ What we want to do is have each process write out its data simultaneously in som
 
 * is fast
 
+### Hardware considerations
+
+So can we do that?  Well of course there are a number of complexities we want to think about.
+
+For a start, we need to worry about whether it's actually faster - in the end, on many traditional file systems, X processes writing out to the same disk/file will take more time than one process writing out the same data.
+
+However on modern HPC systems like Legion, we have parallel file-systems and file-system hardware which are designed to allow many writes at once to happen accross the multiple disks which make up the filesystem.
+
+Because these systems are connected to the compute nodes by a network, you also gain the advantage of having multiple network links worth of bandwidth to do the file reads/writes rather than the network bandwidth of the node that process zero is running on.
+
 As is common with this sort of problem in HPC, there were a bunch of competeing vendor specific libraries for doing this, until MPI-IO was added into the MPI standard.
