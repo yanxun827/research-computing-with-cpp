@@ -39,3 +39,7 @@ However on modern HPC systems like Legion, we have parallel file-systems and fil
 Because these systems are connected to the compute nodes by a network, you also gain the advantage of having multiple network links worth of bandwidth to do the file reads/writes rather than the network bandwidth of the node that process zero is running on.
 
 As is common with this sort of problem in HPC, there were a bunch of competeing vendor specific libraries for doing this, until MPI-IO was added into the MPI standard.
+
+### MPI-IO
+
+So what is MPI-IO?
