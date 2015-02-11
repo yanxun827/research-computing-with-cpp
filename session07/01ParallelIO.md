@@ -34,6 +34,10 @@ So can we do that?  Well of course there are a number of complexities we want to
 
 For a start, we need to worry about whether it's actually faster - in the end, on many traditional file systems, X processes writing out to the same disk/file will take more time than one process writing out the same data.
 
+### Parallel hardware
+
+Reading/writing from/to a hard disk is slow by HPC standards.
+
 However on modern HPC systems like Legion, we have parallel file-systems and file-system hardware which are designed to allow many writes at once to happen accross the multiple disks which make up the filesystem.
 
 Because these systems are connected to the compute nodes by a network, you also gain the advantage of having multiple network links worth of bandwidth to do the file reads/writes rather than the network bandwidth of the node that process zero is running on.
@@ -43,3 +47,39 @@ As is common with this sort of problem in HPC, there were a bunch of competeing 
 ### MPI-IO
 
 So what is MPI-IO?
+
+* Part of MPI standard
+
+* Introduced in MPI 2.0 spec
+
+* Defines a standard set of proceedure calls for performing parallel writes to one file from all processes in an MPI communicator.
+
+### Decompostion
+
+You will have already seen earlier that when we want to perform computation in parallel, we need to decompose the problem into smaller chunks and for parallel I/O we need to do exactly the same.
+
+### Function calls
+
+MPI\_File\_open
+
+ * Opens a file for use by MPI-IO
+
+MPI\_File\_seek
+
+ * Sets the position in the file that we want to read/write from
+
+MPI\_File\_get\_position
+
+ * Gets current position in file
+
+MPI\_File\_write
+
+ * Writes at our position
+
+MPI\_File\_read
+
+ * Reads at our position
+
+MPI\_File\_close
+
+ * Closes the file
