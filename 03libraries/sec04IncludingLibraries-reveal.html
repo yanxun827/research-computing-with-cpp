@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <title>Including Libraries</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="http://lab.hakim.se/reveal-js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <link rel="stylesheet" href="http://lab.hakim.se/reveal-js/css/theme/night.css"/>
+    <link rel="stylesheet" href="/research-computing-with-cpp//css/ucl_reveal.css"/>
+    <link rel="stylesheet" href="/research-computing-with-cpp//site-styles/reveal.css"/>
+  <link rel="stylesheet" media="print" href="http://lab.hakim.se/reveal-js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="http://lab.hakim.se/reveal-js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Including Libraries</h1>
+    <h3 class="date"></h3>
+</section>
+
+<section><section id="including-libraries" class="titleslide slide level2"><h1>Including libraries</h1></section><section id="aim" class="slide level3">
+<h1>Aim</h1>
+<ul>
+<li>Can be difficult to include a C++ library</li>
+<li>Step through
+<ul>
+<li>Ways of setting paths/library names
+<ul>
+<li>Platform specific</li>
+<li>Use of CMake</li>
+</ul></li>
+</ul></li>
+<li>Aim for - source code based distribution</li>
+</ul>
+</section><section id="recap" class="slide level3">
+<h1>Recap</h1>
+<ul>
+<li>So far
+<ul>
+<li>Seen how to chose</li>
+<li>Static / Dynamic</li>
+<li>How to structure layout</li>
+</ul></li>
+<li>Now we want to use a library</li>
+</ul>
+</section><section id="fundamental" class="slide level3">
+<h1>Fundamental</h1>
+<ul>
+<li>Access to header files - declaration</li>
+<li>Access to compiled code - definition</li>
+</ul>
+</section><section id="linuxmac" class="slide level3">
+<h1>Linux/Mac</h1>
+<pre><code>g++ -c -I/users/me/myproject/include main.cpp
+g++ -o main main.o -L/users/me/myproject/lib -lmylib</code></pre>
+<ul>
+<li><code>-I</code> to specify include folder</li>
+<li><code>-L</code> to specify library folder</li>
+<li><code>-l</code> to specify the actual library</li>
+</ul>
+<p>Notice: you don't specify .a or .so/.dylib if only 1 type exists.</p>
+</section><section id="windows" class="slide level3">
+<h1>Windows</h1>
+<ul>
+<li>Visual Studio (check version)</li>
+<li>Project Properties
+<ul>
+<li>C/C++ -&gt; Additional Include Directories.</li>
+<li>Configuration Properties -&gt; Linker -&gt; Additional Library Directories</li>
+<li>Linker -&gt; Input -&gt; Additional Dependencies.</li>
+</ul></li>
+<li>Check compile line - its equivalent to Linux/Mac, -I, -L, -l</li>
+</ul>
+</section><section id="header-only" class="slide level3">
+<h1>Header Only?</h1>
+<ul>
+<li>After all this:
+<ul>
+<li>Static/Dynamic</li>
+<li>Package Managers / Build your own</li>
+<li>External build / Internal Build</li>
+<li>Release / Debug</li>
+<li>-I, -L, -l</li>
+</ul></li>
+<li>Header only libraries are very attractive.</li>
+</ul>
+</section><section id="use-of-cmake" class="slide level3">
+<h1>Use of CMake</h1>
+<ul>
+<li>Several ways depending on your setup
+<ul>
+<li>Hard code paths and library names</li>
+<li>Use a FindModule</li>
+<li>Generate and use a FindModule</li>
+</ul></li>
+</ul>
+</section><section id="cmake---header-only" class="slide level3">
+<h1>CMake - Header Only</h1>
+<ul>
+<li>catch.hpp Header files in project <a href="https://github.com/MattClarkson/CMakeCatchTemplate/blob/master/Testing/mpBasicTest.cpp">CMakeCatchTemplate</a></li>
+<li>From <code>CMakeCatchTemplate/CMakeLists.txt</code></li>
+</ul>
+<pre><code>include_directories(${CMAKE_SOURCE_DIR}/Code/)
+add_subdirectory(Code)
+if(BUILD_TESTING)
+  include_directories(${CMAKE_SOURCE_DIR}/Testing/)
+  add_subdirectory(Testing)
+endif()</code></pre>
+</section><section id="cmake---header-only-1" class="slide level3">
+<h1>CMake - Header Only</h1>
+<ul>
+<li>Options are:
+<ul>
+<li>Check small/medium size project into your project</li>
+</ul></li>
+<li><p>For example:</p>
+<pre><code>CMakeCatchTemplate/3rdParty/libraryA/version1/Class1.hpp
+CMakeCatchTemplate/3rdParty/libraryA/version1/Class2.hpp</code></pre></li>
+<li><p>Add to CMakeLists.txt</p>
+<pre><code>include_directories(${CMAKE_SOURCE_DIR}/3rdParty/libraryA/version1/)</code></pre></li>
+<li><p>You'd have audit trail (via git repo) of when updates to library were made.</p></li>
+</ul>
+</section><section id="cmake---header-only-external" class="slide level3">
+<h1>CMake - Header Only External</h1>
+<ul>
+<li>If larger, e.g. Eigen</li>
+</ul>
+<pre><code>C:\3rdParty\Eigen
+C:\build\MyProject
+C:\build\MyProject-build</code></pre>
+<ul>
+<li><p>Add to CMakeLists.txt</p>
+<pre><code>include_directories(&quot;C:\3rdParty\Eigen\install\include\eigen3\</code></pre></li>
+<li>Hard-coded, but usable if you write detailed build instructions</li>
+<li>Not very platform independent</li>
+<li>Not very flexible</li>
+<li><p>Can be self contained if you have a Meta-build</p></li>
+</ul>
+</section><section id="cmake---find_package" class="slide level3">
+<h1>CMake - find_package</h1>
+<ul>
+<li><p>For example:</p>
+<pre><code>  find_package(OpenCV REQUIRED)
+  include_directories(${OpenCV_INCLUDE_DIRS})
+  list(APPEND ALL_THIRD_PARTY_LIBRARIES ${OpenCV_LIBS})
+  add_definitions(-DBUILD_OpenCV)</code></pre></li>
+<li>So a package can provide information on how you should use it</li>
+<li><p>If its written in CMake code, even better!</p></li>
+</ul>
+</section><section id="find_package---intro" class="slide level3">
+<h1>find_package - Intro</h1>
+<ul>
+<li>CMake comes with scripts to include 3rd Party Libraries</li>
+<li>You can also write your own ones</li>
+</ul>
+</section><section id="find_package---search-locations" class="slide level3">
+<h1>find_package - Search Locations</h1>
+<p>A Basic Example (for a full example - see docs)</p>
+<ul>
+<li><p>Given:</p>
+<pre><code>  find_package(SomeLibrary [REQUIRED])</code></pre></li>
+<li>CMake will search
+<ul>
+<li>all directories in CMAKE_MODULE_PATH</li>
+<li>for FindSomeLibrary.cmake</li>
+<li>case sensitive</li>
+</ul></li>
+</ul>
+</section><section id="find_package---result" class="slide level3">
+<h1>find_package - Result</h1>
+<ul>
+<li>If file is found, CMake will try to run it, to find that library.</li>
+<li>FindSomeLibrary.cmake should return SomeLibrary_FOUND:BOOL=TRUE if library was found</li>
+<li>Sets any other variables necessary to use the library</li>
+<li>Check CMakeCache.txt</li>
+</ul>
+</section><section id="find_package---usage" class="slide level3">
+<h1>find_package - Usage</h1>
+<ul>
+<li>So many 3rd party libraries are CMake ready.</li>
+<li>If things go wrong, you can debug it - not compiled</li>
+</ul>
+</section><section id="find_package---fixing" class="slide level3">
+<h1>find_package - Fixing</h1>
+<ul>
+<li>You can provide patched versions</li>
+<li><p>Add your source/build folder to the CMAKE_MODULE_PATH</p>
+<pre><code>set(CMAKE_MODULE_PATH
+    ${CMAKE_SOURCE_DIR}/CMake
+    ${CMAKE_BINARY_DIR}
+    ${CMAKE_MODULE_PATH}
+   )</code></pre></li>
+<li><p>So CMake will find your version before the system versions</p></li>
+</ul>
+</section><section id="find_package---tailoring" class="slide level3">
+<h1>find_package - Tailoring</h1>
+<ul>
+<li>You can write your own
+<ul>
+<li>e.g. FindEigen in <a href="https://github.com/MattClarkson/CMakeCatchTemplate/blob/master/CMake/FindEigen.cmake">CMakeCatchTemplate</a></li>
+</ul></li>
+<li>Use CMake to substitute variables
+<ul>
+<li>Force include/library dirs</li>
+<li>Useful for vendors API that isn't CMake compatible</li>
+<li>Useful for meta-build. Force directories to match the package you just compiled.</li>
+</ul></li>
+</ul>
+</section><section id="provide-build-flags" class="slide level3">
+<h1>Provide Build Flags</h1>
+<ul>
+<li><p>If a package is found, you can add compiler flag.</p>
+<pre><code>add_definitions(-DBUILD_OpenCV)</code></pre></li>
+<li><p>So, you can optionally include things:</p>
+<pre><code>#ifdef BUILD_OpenCV
+#include &lt;cv.h&gt;
+#endif</code></pre></li>
+<li>Best not to do too much of this.</li>
+<li><p>Useful to provide build options, e.g. for running on clusters</p></li>
+</ul>
+</section><section id="check-before-committing" class="slide level3">
+<h1>Check Before Committing</h1>
+<ul>
+<li>Before you commit code to git,</li>
+<li><p>Make sure you are compiling what you think you are!</p>
+<pre><code>#ifdef BUILD_OpenCV
+blah blah
+#include &lt;cv.h&gt;
+#endif</code></pre></li>
+<li><p>should fail compilation</p></li>
+</ul>
+</section><section id="summary" class="slide level3">
+<h1>Summary</h1>
+<ul>
+<li>Basic aim:
+<ul>
+<li><code>include_directories()</code> generates -I</li>
+<li>`<code>link_directories()</code> generates -L</li>
+<li><code>target_link_libraries(mylibrary PRIVATE ${libs})</code> generates -l for each library</li>
+</ul></li>
+<li>Might not need <code>link_directories()</code> if libraries fully qualified</li>
+<li>Try default CMake find_package</li>
+<li>Or write your own and add location to CMAKE_MODULE_PATH</li>
+</ul>
+</section></section>
+    </div>
+  </div>
+
+  <script src="http://lab.hakim.se/reveal-js/lib/js/head.min.js"></script>
+  <script src="http://lab.hakim.se/reveal-js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: 'night', // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'http://lab.hakim.se/reveal-js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'http://lab.hakim.se/reveal-js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'http://lab.hakim.se/reveal-js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: 'http://lab.hakim.se/reveal-js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: 'http://lab.hakim.se/reveal-js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>
